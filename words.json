@@ -1,0 +1,14 @@
+{
+  "easy": {
+    "animals": ["cat", "dog", "bear", "lion", "tiger"],
+    "tech": ["code", "data", "byte", "loop", "web"]
+  },
+  "medium": {
+    "animals": ["dolphin", "giraffe", "elephant", "panther"],
+    "tech": ["python", "variable", "function", "array"]
+  },
+  "hard": {
+    "animals": ["platypus", "chameleon", "axolotl", "salamander"],
+    "tech": ["algorithm", "recursion", "polymorphism", "encapsulation"]
+  }
+}
