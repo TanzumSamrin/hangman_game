@@ -1,14 +1,26 @@
 {
   "easy": {
-    "animals": ["cat", "dog", "bear", "lion", "tiger"],
-    "tech": ["code", "data", "byte", "loop", "web"]
+    "tech": ["code", "data", "byte", "loop", "web", "disk", "node", "wifi", "link", "page", "chip", "port", "ping", "site", "host", "user", "file", "icon", "task", "card"],
+    "animals": ["lion", "bear", "duck", "wolf", "frog", "deer", "seal", "swan", "mole", "hawk", "goat", "crab", "moth", "mule", "pike", "slug", "toad", "wasp", "crow", "lynx"],
+    "food": ["pizza", "taco", "apple", "bread", "cheese", "grape", "lemon", "peach", "mango", "sushi", "donut", "bagel", "steak", "bacon", "onion", "melon", "berry", "toast", "salad", "pasta"],
+    "astronomy": ["star", "moon", "sun", "mars", "orbit", "comet", "space", "sky", "ring", "nova", "dust", "core", "halo", "lens", "rays", "void", "dark", "glow", "axis", "pluto"],
+    "geography": ["city", "lake", "river", "peak", "bank", "dune", "hill", "glen", "cove", "port", "cave", "reef", "pond", "quay", "marsh", "swamp", "bays", "cape", "isle", "park"],
+    "movies": ["hero", "film", "cast", "plot", "star", "scene", "role", "stunt", "mask", "prop", "crew", "shot", "take", "reel", "fame", "set", "clip", "epic", "cult", "rate"]
   },
   "medium": {
-    "animals": ["dolphin", "giraffe", "elephant", "panther"],
-    "tech": ["python", "variable", "function", "array"]
+    "tech": ["python", "variable", "function", "network", "browser", "compiler", "terminal", "database", "hardware", "software", "firewall", "protocol", "scripting", "algorithm", "bandwidth", "checksum", "download", "ethernet", "graphics", "instance"],
+    "animals": ["dolphin", "giraffe", "elephant", "panther", "cheetah", "penguin", "octopus", "kangaroo", "ostrich", "flamingo", "hedgehog", "squirrel", "scorpion", "anteater", "bullfrog", "capybara", "cockatoo", "stingray", "reindeer", "tortoise"],
+    "food": ["spaghetti", "burrito", "pancake", "avocado", "chocolate", "sandwich", "broccoli", "cucumber", "croissant", "barbecue", "dumpling", "espresso", "hazelnut", "macaroni", "meatball", "mushroom", "pineapple", "pistachio", "smoothie", "tiramisu"],
+    "astronomy": ["jupiter", "neptune", "asteroid", "eclipse", "galaxy", "spectrometer", "gravity", "nebula", "meteor", "telescope", "equinox", "solstice", "parallax", "radiation", "satellite", "solarsystem", "spacecraft", "starlight", "universe", "weightless"],
+    "geography": ["mountain", "volcano", "glacier", "island", "plateau", "waterfall", "peninsula", "canyon", "desert", "savanna", "archipelago", "continent", "rainforest", "reservoir", "boulder", "coastline", "footgrass", "highlands", "wetlands", "badlands"],
+    "movies": ["director", "popcorn", "thriller", "cinema", "matinee", "producer", "animator", "credits", "sequel", "prequel", "screenplay", "subtitle", "audition", "blockbuster", "camcorder", "character", "voiceover", "showtime", "storyline", "showcase"]
   },
   "hard": {
-    "animals": ["platypus", "chameleon", "axolotl", "salamander"],
-    "tech": ["algorithm", "recursion", "polymorphism", "encapsulation"]
+    "tech": ["algorithm", "recursion", "polymorphism", "encapsulation", "cryptography", "refactoring", "microservice", "asynchronous", "concurrency", "cybersecurity", "multithreading", "containerization", "virtualization", "authentication", "authorization", "deserialization", "dependency", "implementation", "orchestration", "interoperability"],
+    "animals": ["platypus", "chameleon", "axolotl", "salamander", "armadillo", "porcupine", "capybara", "cassowary", "woodpecker", "rattlesnake", "hippopotamus", "komododragon", "tarantula", "hummingbird", "cuttlefish", "wolverine", "tasmanian", "pterodactyl", "nightingale", "chinchilla"],
+    "food": ["charcuterie", "ratatouille", "bruschetta", "goulash", "mayonnaise", "quesadilla", "zucchini", "pomegranate", "moussaka", "limoncello", "panna_cotta", "chimichurri", "bouillabaisse", "gorgonzola", "hollandaise", "minestrone", "prosciutto", "profiterole", "vynaigrette", "worcestershire"],
+    "astronomy": ["supernova", "exoplanet", "constellation", "singularity", "astrophysics", "magnetosphere", "interstellar", "heliosphere", "chromosphere", "parsec", "gravitational", "intergalactic", "nucleosynthesis", "photosphere", "radioastronomy", "spectroscopy", "thermonuclear", "spacetime", "astronomical", "interplanetary"],
+    "geography": ["archipelago", "stratosphere", "tributary", "permafrost", "mediterranean", "hemisphere", "topography", "biodiversity", "escarpment", "fjord", "geomorphology", "cartography", "subcontinent", "orography", "panhandle", "microclimate", "phytogeography", "bathymetry", "peneplain", "transgressions"],
+    "movies": ["cinematography", "blockbuster", "screenplay", "storyboard", "documentary", "postproduction", "chromakey", "technicolor", "filmography", "dramatization", "postprocessing", "videography", "autobiography", "reinterpretation", "characterization", "masterpiece", "screenwriting", "spectacular", "orchestration", "soundtracking"]
   }
 }

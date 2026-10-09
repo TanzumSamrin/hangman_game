@@ -38,7 +38,7 @@
             border-radius: 16px;
             padding: 30px;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
@@ -54,6 +54,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
             margin-bottom: 20px;
         }
 
@@ -84,13 +85,15 @@
             margin: 15px 0;
             font-size: 1.1rem;
             color: var(--text-muted);
+            display: flex;
+            justify-content: space-around;
         }
 
         .word-display {
             font-size: 2.2rem;
             font-family: monospace;
             letter-spacing: 8px;
-            margin: 25px 0;
+            margin: 20px 0;
             min-height: 50px;
             color: var(--primary);
             font-weight: bold;
@@ -149,7 +152,7 @@
         .message.win { color: var(--accent-green); }
         .message.lose { color: var(--accent-red); }
 
-        /* SVG Hangman Drawing */
+        /* SVG Hangman Canvas */
         .hangman-drawing {
             width: 150px;
             height: 150px;
@@ -170,16 +173,28 @@
 <div class="container">
     <h1>HANGMAN</h1>
 
+    <!-- Control bar with Difficulty & Category dropdowns -->
     <div class="controls">
         <select id="difficulty-select">
             <option value="easy">Easy (8 Attempts)</option>
             <option value="medium" selected>Medium (6 Attempts)</option>
             <option value="hard">Hard (4 Attempts)</option>
         </select>
+
+        <select id="category-select">
+            <option value="">All Categories</option>
+            <option value="tech">Tech</option>
+            <option value="animals">Animals</option>
+            <option value="food">Food</option>
+            <option value="astronomy">Astronomy</option>
+            <option value="geography">Geography</option>
+            <option value="movies">Movies</option>
+        </select>
+
         <button class="control-btn" onclick="startNewGame()">New Game</button>
     </div>
 
-    <!-- Hangman Visual Canvas -->
+    <!-- Hangman Graphic -->
     <svg class="hangman-drawing" viewBox="0 0 100 100">
         <!-- Gallows Structure -->
         <line x1="10" y1="90" x2="90" y2="90" stroke="#475569" stroke-width="4"/>
@@ -197,7 +212,8 @@
     </svg>
 
     <div class="status-bar">
-        Attempts Remaining: <span id="attempts-left" style="color: var(--primary); font-weight: bold;">-</span>
+        <div>Category: <span id="current-category" style="color: var(--primary); font-weight: bold;">All</span></div>
+        <div>Attempts Remaining: <span id="attempts-left" style="color: var(--primary); font-weight: bold;">-</span></div>
     </div>
 
     <div class="word-display" id="word-display">_ _ _ _ _</div>
@@ -236,8 +252,8 @@
             gain.connect(audioCtx.destination);
 
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(523.25, now); // C5
-            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
             osc.start(now);
@@ -314,14 +330,21 @@
         });
     }
 
-    // API Call to Start Game
+    // API Call to Start Game (Sends both Difficulty & Category)
     async function startNewGame() {
         previousIncorrect = 0;
         const difficulty = document.getElementById('difficulty-select').value;
+        const category = document.getElementById('category-select').value;
+
+        // Display current active category label
+        const catSelect = document.getElementById('category-select');
+        const selectedText = catSelect.options[catSelect.selectedIndex].text;
+        document.getElementById('current-category').innerText = selectedText;
+
         const response = await fetch('/api/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ difficulty })
+            body: JSON.stringify({ difficulty, category })
         });
         const state = await response.json();
         updateUI(state, true);
@@ -345,10 +368,9 @@
         document.getElementById('word-display').innerText = state.display;
         document.getElementById('attempts-left').innerText = state.attempts_left;
 
-        const maxAttempts = state.attempts_left + (6 - (6 - state.attempts_left));
         const currentIncorrect = state.guessed.filter(l => !state.word?.includes(l) && !state.display.toLowerCase().includes(l)).length;
 
-        // Trigger Audio Feedback
+        // Audio Feedback Triggers
         if (!isNewGame) {
             if (state.status === 'won') {
                 playSound('win');
@@ -379,7 +401,7 @@
             }
         }
 
-        // Set Game Over / Victory Message
+        // Victory / Game Over Messages
         const msgEl = document.getElementById('message');
         if (state.status === 'won') {
             msgEl.className = 'message win';

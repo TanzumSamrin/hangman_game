@@ -13,10 +13,11 @@ def load_random_word(difficulty="medium", category=None):
     
     diff_data = data.get(difficulty.lower(), data["medium"])
     
-    if category and category in diff_data:
-        word_list = diff_data[category]
+    # Filter by specific category if selected
+    if category and category.lower() in diff_data:
+        word_list = diff_data[category.lower()]
     else:
-        # Pick from all categories within selected difficulty
+        # Combine all categories under the chosen difficulty
         word_list = [word for cat in diff_data.values() for word in cat]
         
     return random.choice(word_list).lower()

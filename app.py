@@ -5,7 +5,6 @@ import secrets
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -14,8 +13,9 @@ def index():
 def start_game():
     data = request.json or {}
     difficulty = data.get("difficulty", "medium")
+    category = data.get("category", None)  # Reads selected category from UI
     
-    session["word"] = load_random_word(difficulty)
+    session["word"] = load_random_word(difficulty, category)
     session["max_attempts"] = DIFFICULTY_SETTINGS.get(difficulty, {}).get("max_attempts", 6)
     session["guessed"] = []
     session["incorrect"] = 0
