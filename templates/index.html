@@ -96,23 +96,37 @@
             font-weight: bold;
         }
 
+        /* QWERTY Keyboard Styles */
         .keyboard {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 8px;
             margin-top: 20px;
+            align-items: center;
+        }
+
+        .keyboard-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            width: 100%;
         }
 
         .key-btn {
-            padding: 12px 0;
+            flex: 1;
+            max-width: 45px;
+            height: 48px;
             background: #334155;
             border: none;
             border-radius: 6px;
             color: var(--text-main);
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.05rem;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .key-btn:hover:not(:disabled) {
@@ -135,7 +149,7 @@
         .message.win { color: var(--accent-green); }
         .message.lose { color: var(--accent-red); }
 
-        /* Simple SVG Hangman Canvas */
+        /* SVG Hangman Drawing */
         .hangman-drawing {
             width: 150px;
             height: 150px;
@@ -165,21 +179,21 @@
         <button class="control-btn" onclick="startNewGame()">New Game</button>
     </div>
 
-    <!-- Hangman Graphic -->
+    <!-- Hangman Visual Canvas -->
     <svg class="hangman-drawing" viewBox="0 0 100 100">
-        <!-- Base Gallows -->
+        <!-- Gallows Structure -->
         <line x1="10" y1="90" x2="90" y2="90" stroke="#475569" stroke-width="4"/>
         <line x1="30" y1="90" x2="30" y2="10" stroke="#475569" stroke-width="4"/>
         <line x1="30" y1="10" x2="70" y2="10" stroke="#475569" stroke-width="4"/>
         <line x1="70" y1="10" x2="70" y2="25" stroke="#475569" stroke-width="3"/>
 
-        <!-- Body Parts (Revealed based on incorrect guesses) -->
-        <circle id="part-0" class="draw-part" cx="70" cy="33" r="8"/> <!-- Head -->
-        <line id="part-1" class="draw-part" x1="70" y1="41" x2="70" y2="65"/> <!-- Body -->
-        <line id="part-2" class="draw-part" x1="70" y1="48" x2="55" y2="58"/> <!-- Left Arm -->
-        <line id="part-3" class="draw-part" x1="70" y1="48" x2="85" y2="58"/> <!-- Right Arm -->
-        <line id="part-4" class="draw-part" x1="70" y1="65" x2="55" y2="80"/> <!-- Left Leg -->
-        <line id="part-5" class="draw-part" x1="70" y1="65" x2="85" y2="80"/> <!-- Right Leg -->
+        <!-- Stickman Body Parts -->
+        <circle id="part-0" class="draw-part" cx="70" cy="33" r="8"/>
+        <line id="part-1" class="draw-part" x1="70" y1="41" x2="70" y2="65"/>
+        <line id="part-2" class="draw-part" x1="70" y1="48" x2="55" y2="58"/>
+        <line id="part-3" class="draw-part" x1="70" y1="48" x2="85" y2="58"/>
+        <line id="part-4" class="draw-part" x1="70" y1="65" x2="55" y2="80"/>
+        <line id="part-5" class="draw-part" x1="70" y1="65" x2="85" y2="80"/>
     </svg>
 
     <div class="status-bar">
@@ -194,23 +208,115 @@
 </div>
 
 <script>
-    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    let maxAttempts = 6;
+    // QWERTY Layout Array
+    const qwertyRows = [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+        ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+    ];
 
+    let previousIncorrect = 0;
+    let audioCtx = null;
+
+    // Web Audio Synthesizer Function
+    function playSound(type) {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now);
+            osc.stop(now + 0.2);
+
+        } else if (type === 'wrong') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+
+        } else if (type === 'win') {
+            [523.25, 659.25, 783.99, 1046.50].forEach((freq, index) => {
+                const noteOsc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                noteOsc.connect(noteGain);
+                noteGain.connect(audioCtx.destination);
+
+                const startTime = now + (index * 0.12);
+                noteOsc.frequency.setValueAtTime(freq, startTime);
+                noteGain.gain.setValueAtTime(0.2, startTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+
+                noteOsc.start(startTime);
+                noteOsc.stop(startTime + 0.3);
+            });
+
+        } else if (type === 'lose') {
+            [300, 260, 220, 180].forEach((freq, index) => {
+                const noteOsc = audioCtx.createOscillator();
+                const noteGain = audioCtx.createGain();
+                noteOsc.connect(noteGain);
+                noteGain.connect(audioCtx.destination);
+
+                const startTime = now + (index * 0.18);
+                noteOsc.type = 'triangle';
+                noteOsc.frequency.setValueAtTime(freq, startTime);
+                noteGain.gain.setValueAtTime(0.2, startTime);
+                noteGain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.35);
+
+                noteOsc.start(startTime);
+                noteOsc.stop(startTime + 0.35);
+            });
+        }
+    }
+
+    // Render QWERTY Keyboard
     function renderKeyboard() {
         const keyboard = document.getElementById('keyboard');
         keyboard.innerHTML = '';
-        alphabet.forEach(letter => {
-            const btn = document.createElement('button');
-            btn.className = 'key-btn';
-            btn.id = `key-${letter}`;
-            btn.innerText = letter.toUpperCase();
-            btn.onclick = () => makeGuess(letter);
-            keyboard.appendChild(btn);
+        
+        qwertyRows.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            
+            row.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.className = 'key-btn';
+                btn.id = `key-${letter}`;
+                btn.innerText = letter.toUpperCase();
+                btn.onclick = () => makeGuess(letter);
+                rowDiv.appendChild(btn);
+            });
+            
+            keyboard.appendChild(rowDiv);
         });
     }
 
+    // API Call to Start Game
     async function startNewGame() {
+        previousIncorrect = 0;
         const difficulty = document.getElementById('difficulty-select').value;
         const response = await fetch('/api/start', {
             method: 'POST',
@@ -218,9 +324,10 @@
             body: JSON.stringify({ difficulty })
         });
         const state = await response.json();
-        updateUI(state);
+        updateUI(state, true);
     }
 
+    // API Call for Letter Guesses
     async function makeGuess(letter) {
         document.getElementById(`key-${letter}`).disabled = true;
         
@@ -230,32 +337,49 @@
             body: JSON.stringify({ letter })
         });
         const state = await response.json();
-        updateUI(state);
+        updateUI(state, false);
     }
 
-    function updateUI(state) {
-        // Display word
+    // Render Game State
+    function updateUI(state, isNewGame = false) {
         document.getElementById('word-display').innerText = state.display;
         document.getElementById('attempts-left').innerText = state.attempts_left;
 
-        // Reset/Update Keyboard states
-        alphabet.forEach(letter => {
+        const maxAttempts = state.attempts_left + (6 - (6 - state.attempts_left));
+        const currentIncorrect = state.guessed.filter(l => !state.word?.includes(l) && !state.display.toLowerCase().includes(l)).length;
+
+        // Trigger Audio Feedback
+        if (!isNewGame) {
+            if (state.status === 'won') {
+                playSound('win');
+            } else if (state.status === 'lost') {
+                playSound('lose');
+            } else if (currentIncorrect > previousIncorrect) {
+                playSound('wrong');
+            } else if (state.guessed.length > 0) {
+                playSound('correct');
+            }
+        }
+
+        previousIncorrect = currentIncorrect;
+
+        // Disable used buttons
+        qwertyRows.flat().forEach(letter => {
             const btn = document.getElementById(`key-${letter}`);
             if (btn) {
                 btn.disabled = state.guessed.includes(letter) || state.status !== 'playing';
             }
         });
 
-        // Update Hangman Drawing
-        const incorrectCount = 6 - state.attempts_left; 
+        // Update Hangman Vector Parts
         for (let i = 0; i < 6; i++) {
             const part = document.getElementById(`part-${i}`);
             if (part) {
-                part.style.display = i < incorrectCount ? 'block' : 'none';
+                part.style.display = i < currentIncorrect ? 'block' : 'none';
             }
         }
 
-        // Game Status Messages
+        // Set Game Over / Victory Message
         const msgEl = document.getElementById('message');
         if (state.status === 'won') {
             msgEl.className = 'message win';
@@ -269,7 +393,7 @@
         }
     }
 
-    // Initialize keyboard and start game on page load
+    // Initial Setup
     renderKeyboard();
     startNewGame();
 </script>
